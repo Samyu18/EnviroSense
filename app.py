@@ -41,8 +41,15 @@ HTML = '''
 </head>
 <body>
     <div class="container py-3">
-        <h1 class="main-title text-center">EnviroSense</h1>
-        <div class="coords-label" id="coordsLabel">Selected Location: (20.00, 0.00)</div>
+        <div class="d-flex flex-column align-items-center mb-2">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="background:linear-gradient(135deg,#6366f1 0%,#60a5fa 100%);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(99,102,241,0.15);">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#fff"/><path d="M16 7c-2.5 3.5-7 7.5-7 12a7 7 0 0014 0c0-4.5-4.5-8.5-7-12z" fill="#6366f1"/><circle cx="16" cy="19" r="3" fill="#60a5fa"/></svg>
+                </div>
+                <h1 class="main-title mb-0" style="font-size:2.1rem;">EnviroSense</h1>
+            </div>
+            <div class="coords-label" id="coordsLabel">Selected Location: (20.00, 0.00)</div>
+        </div>
         <div class="row mb-3">
             <div class="col-12">
                 <div id="map"></div>
@@ -192,15 +199,22 @@ HTML = '''
             })
             .catch(() => {
                 hideLoading();
-                document.getElementById('soilData').innerHTML = '';
-                document.getElementById('airData').innerHTML = '';
-                document.getElementById('waterData').innerHTML = '';
-                document.getElementById('soilError').textContent = 'Error loading soil data.';
-                document.getElementById('soilError').style.display = '';
-                document.getElementById('airError').textContent = 'Error loading air data.';
-                document.getElementById('airError').style.display = '';
-                document.getElementById('waterError').textContent = 'Error loading water data.';
-                document.getElementById('waterError').style.display = '';
+                // Only show error if no data is visible
+                let soilText = document.getElementById('soilData').innerHTML.trim();
+                let airText = document.getElementById('airData').innerHTML.trim();
+                let waterText = document.getElementById('waterData').innerHTML.trim();
+                if (!soilText) {
+                    document.getElementById('soilError').textContent = 'Error loading soil data.';
+                    document.getElementById('soilError').style.display = '';
+                }
+                if (!airText) {
+                    document.getElementById('airError').textContent = 'Error loading air data.';
+                    document.getElementById('airError').style.display = '';
+                }
+                if (!waterText) {
+                    document.getElementById('waterError').textContent = 'Error loading water data.';
+                    document.getElementById('waterError').style.display = '';
+                }
             });
     }
     function isSoilNoData(soil) {
