@@ -364,5 +364,7 @@ def get_water_data(lat, lon):
     # Demo/sample data fallback
     return ({'ph': 7.2, 'turbidity': 2.5, 'contaminants': 5}, True)
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
