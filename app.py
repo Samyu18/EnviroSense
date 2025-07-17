@@ -2,8 +2,10 @@ from flask import Flask, request, jsonify, render_template_string
 import requests
 import os
 import sys
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 WAQI_TOKEN = 'f0ee6276f0618800724543191076bc4a4393417b'  # Hardcoded as requested
 
@@ -343,22 +345,55 @@ def get_soil_data(lat, lon):
 
 def get_water_data(lat, lon):
     try:
-        url = f'https://www.waterqualitydata.us/data/Result/search?lat={lat}&long={lon}&within=5&mimeType=json'
-        resp = requests.get(url, timeout=15)
-        data = resp.json()
-        print('Water Quality Portal response:', data, file=sys.stderr)
-        ph, turbidity, contaminants = 'No data', 'No data', 'No data'
-        for r in data:
-            if 'CharacteristicName' in r:
-                if r['CharacteristicName'].lower() == 'ph' and ph == 'No data':
-                    ph = r.get('ResultMeasureValue', 'No data')
-                if r['CharacteristicName'].lower() == 'turbidity' and turbidity == 'No data':
-                    turbidity = r.get('ResultMeasureValue', 'No data')
-                if r['CharacteristicName'].lower() in ['nitrate', 'lead', 'arsenic', 'contaminant'] and contaminants == 'No data':
-                    contaminants = r.get('ResultMeasureValue', 'No data')
-        # If any real value found, return it (not demo)
-        if ph != 'No data' or turbidity != 'No data' or contaminants != 'No data':
-            return ({'ph': ph, 'turbidity': turbidity, 'contaminants': contaminants}, False)
+        # Water Quality Portal (USGS)
+        water_data = None
+        water_real = False
+        try:
+            wqp_url = "https://www.waterqualitydata.us/data/Result/search"
+            wqp_params = {
+                "mimeType": "json",
+                "countrycode": "US",
+                "lat": lat,
+                "long": lon,
+                "within": 25,  # km
+                "sorted": "no"
+            }
+            wqp_headers = {"User-Agent": "EnviroSense/1.0"}
+            wqp_resp = requests.get(wqp_url, params=wqp_params, headers=wqp_headers, timeout=15)
+            if wqp_resp.status_code == 200:
+                wqp_json = wqp_resp.json()
+                if isinstance(wqp_json, list) and len(wqp_json) > 0:
+                    # Extract some demo water quality info
+                    ph = None
+                    turbidity = None
+                    contaminants = 0
+                    for r in wqp_json:
+                        if ph is None and r.get("CharacteristicName", "").lower() == "ph":
+                            try:
+                                ph = float(r.get("ResultMeasureValue", ""))
+                            except:
+                                pass
+                        if turbidity is None and r.get("CharacteristicName", "").lower() == "turbidity":
+                            try:
+                                turbidity = float(r.get("ResultMeasureValue", ""))
+                            except:
+                                pass
+                        if r.get("ResultDetectionConditionText", "").lower() == "present":
+                            contaminants += 1
+                    if ph is not None or turbidity is not None or contaminants > 0:
+                        water_data = {
+                            "ph": ph if ph is not None else 7.2,
+                            "turbidity": turbidity if turbidity is not None else 2.5,
+                            "contaminants": contaminants
+                        }
+                        water_real = True
+                if not water_data:
+                    raise Exception("No real water data found")
+        except Exception as e:
+            # Always fallback to demo data if real data is unavailable
+            water_data = {"ph": 7.2, "turbidity": 2.5, "contaminants": 5}
+            water_real = False
+        return (water_data, water_real)
     except Exception as e:
         print('Water Quality Portal error:', e, file=sys.stderr)
     # Demo/sample data fallback
