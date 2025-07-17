@@ -1,25 +1,42 @@
 # EnviroSense
 
-A Flask web app to monitor soil, air, and water quality by location.
+A web application to monitor soil, air, and water quality by location.
 
 ## Features
-- Real and demo data for soil, air, and water
-- Mobile-friendly, interactive map
+- Select a location on the map
+- View soil, air, and water quality data (real or demo)
+- Data visualization with charts
+- Works on desktop and mobile
 
-## How to Deploy (Render/Railway/Heroku)
-1. Fork or clone this repo.
-2. Make sure you have these files: `app.py`, `requirements.txt`, `Procfile`.
-3. Push to GitHub.
-4. Create a new web service on [Render](https://render.com), [Railway](https://railway.app), or [Heroku](https://heroku.com).
-5. Connect your GitHub repo and deploy as a Python web service.
-6. The service will auto-detect `Procfile` and run the app.
+## Deployment
 
-## Local Development
-```bash
-pip install -r requirements.txt
-python3 app.py
+### Backend (Flask API)
+1. Go to the `backend/` folder.
+2. Deploy to [Render](https://render.com/) or [Railway](https://railway.app/) as a Python web service.
+   - Use `backend/requirements.txt` and `backend/Procfile`.
+   - The entrypoint is `backend/app.py`.
+3. After deployment, note your backend URL (e.g., `https://your-backend.onrender.com`).
+
+### Frontend (GitHub Pages)
+1. Go to the `frontend/` folder.
+2. Edit `main.js` and set `BACKEND_URL` to your deployed backend API URL (e.g., `https://your-backend.onrender.com/api`).
+3. Push the contents of `frontend/` to a GitHub repository.
+4. Enable GitHub Pages in your repo settings (set source to `/frontend` or root, as needed).
+5. Visit your GitHub Pages site and use the app!
+
+## Project Structure
+```
+EnviroSense/
+├── backend/
+│   ├── app.py
+│   ├── requirements.txt
+│   └── Procfile
+├── frontend/
+│   ├── index.html
+│   └── main.js
+├── README.md
 ```
 
 ## Notes
-- The app will always show data (real if available, demo otherwise).
-- For best results, deploy to a free Python web host (Render, Railway, Heroku). 
+- The frontend will not work unless you set `BACKEND_URL` in `main.js` to your deployed backend API.
+- Demo/sample data is shown if real data is not available for a location. 
