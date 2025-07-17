@@ -85,6 +85,12 @@ HTML = '''
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+    // === CONFIGURATION ===
+    // Set this to your deployed backend URL for GitHub Pages, e.g.:
+    // const BACKEND_URL = 'https://your-backend.onrender.com/api';
+    // For local Flask, leave as '' (empty string)
+    const BACKEND_URL = '';
+
     let selectedLat = 20.0, selectedLon = 0.0;
     let marker = null;
     const map = L.map('map').setView([selectedLat, selectedLon], 2);
@@ -137,7 +143,7 @@ HTML = '''
         document.getElementById('soilDemoLabel').style.display = 'none';
         document.getElementById('airDemoLabel').style.display = 'none';
         document.getElementById('waterDemoLabel').style.display = 'none';
-        fetch(`/api/environment?lat=${lat}&lon=${lon}`)
+        fetch(`${BACKEND_URL}/environment?lat=${lat}&lon=${lon}`)
             .then(res => {
                 if (!res.ok) throw new Error('Network response was not ok');
                 return res.json();
